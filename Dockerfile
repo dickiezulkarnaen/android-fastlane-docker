@@ -58,3 +58,18 @@ RUN /usr/glibc-compat/bin/localedef -i en_US -f UTF-8 en_US.UTF-8
 
 RUN gem install s3
 RUN gem install fastlane -v 2.117.1
+
+ENV PATH /google-cloud-sdk/bin:$PATH
+RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+    tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+    rm google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
+    ln -s /lib /lib64 && \
+    gcloud config set core/disable_usage_reporting true && \
+    gcloud config set component_manager/disable_update_check true && \
+    gcloud --version
+
+ADD https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_TOOLS}.zip sdk-tools-linux.zip
+
+RUN unzip sdk-tools-linux.zip -d ${ANDROID_HOME} && \
+    rm sdk-tools-linux.zip && \
+    echo y | ${ANDROID_HOME}/tools/bin/sdkmanager "platforms;android-${ANDROID_COMPILE_SDK}" "build-tools;${ANDROID_BUILD_TOOLS}"
